@@ -2,6 +2,7 @@ import { Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { NodeSelectEventArgs } from '@syncfusion/ej2-angular-navigations';
 import { DialogComponent } from '@syncfusion/ej2-angular-popups';
 import { EmitType } from '@syncfusion/ej2-base';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -47,13 +48,33 @@ public field:Object ={ dataSource: this.hierarchicalData, id: 'id', text: 'name'
     this.targetElement = this.container.nativeElement.parentElement;
   }
 
-
+  @HostListener('window:beforeunload', ['$event'])
+  public onBeforeUnload(event: BeforeUnloadEvent): void {
+    
+    this.antesDeSair(true).subscribe((isAllowedNavigation)=>{
+      if (event && !isAllowedNavigation) {
+        event.preventDefault();
+        event.returnValue = false;
+      }
+    })
+    
+ 
+  }
   ngOnInit() {
-    window.addEventListener("beforeunload", (event) => {
+ 
 
-       this.ejDialog.show()
-    });
 
+  }
+
+  antesDeSair(beforeunloadEvent = false):Observable<boolean>{
+
+    if ( beforeunloadEvent) {
+      const result = window.confirm('Certeza');
+      return of(result);
+    }
+   
+
+    return of(true)
   }
   ir(){
     this.ejDialog.hide()
